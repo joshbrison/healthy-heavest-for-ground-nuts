@@ -1,43 +1,27 @@
-// Admin Dashboard Functionality
+
+// Admin Dashboard Functionality (modular, DRY, reusable)
+// Adhere to modularity and reusability
 const API_BASE_URL = 'http://localhost:5000/api';
 let userChart = null;
 let diseaseChart = null;
 
-// Initialize admin dashboard
 document.addEventListener('DOMContentLoaded', function() {
-    // Check admin authentication
     checkAdminAuth();
-    
-    // Load dashboard data
     loadDashboardData();
-    
-    // Setup navigation
     setupNavigation();
-    
-    // Setup SMS form
     setupSMSForm();
-    
-    // Load initial data for active section
     loadActiveSection();
 });
 
-// Navigation
 function setupNavigation() {
     const navLinks = document.querySelectorAll('.sidebar-nav a');
     const sections = document.querySelectorAll('.admin-section');
-    
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
-            
-            // Get target section id
             const targetId = this.getAttribute('href').substring(1);
-            
-            // Update active nav link
             navLinks.forEach(l => l.classList.remove('active'));
             this.classList.add('active');
-            
-            // Show target section
             sections.forEach(section => {
                 section.classList.remove('active');
                 if (section.id === targetId) {

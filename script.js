@@ -1,108 +1,61 @@
-Parse.initialize("APP_ID", "JS_KEY");
-Parse.serverURL = 'https://parseapi.back4app.com';
+
+// Modular import (for modern browsers or bundlers)
+// import { addEventListenerSafe, setTextContentSafe, setDisplaySafe, showError } from './frontend/ui-utils.js';
+// import { validateForm } from './frontend/form-utils.js';
+
+// For legacy support, you can copy utility functions here or use a bundler.
+
+// Example usage of modular utilities for DRY, modularity, and reusability
+
 // Mobile Menu Toggle
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
 const closeMenuBtn = document.getElementById('closeMenuBtn');
 const mobileMenu = document.getElementById('mobileMenu');
 
-if (mobileMenuBtn) {
-    mobileMenuBtn.addEventListener('click', () => {
-        mobileMenu.classList.add('active');
-    });
-}
+if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', () => mobileMenu.classList.add('active'));
+if (closeMenuBtn) closeMenuBtn.addEventListener('click', () => mobileMenu.classList.remove('active'));
 
-if (closeMenuBtn) {
-    closeMenuBtn.addEventListener('click', () => {
-        mobileMenu.classList.remove('active');
-    });
-}
-
-// Close mobile menu when clicking outside
 document.addEventListener('click', (e) => {
     if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
         mobileMenu.classList.remove('active');
     }
 });
 
-// Dashboard Notifications
+// Dashboard Notifications (DRY)
 function updateNotificationCount() {
     const notificationCount = document.querySelector('.notification-count');
     if (notificationCount) {
-        // In a real app, you would fetch this from an API
         const count = 2; // Example count
         notificationCount.textContent = count;
         notificationCount.style.display = count > 0 ? 'flex' : 'none';
     }
 }
 
-// Form Validation
-function validateForm(formId) {
+// Form Validation (modular)
+function validateFormById(formId) {
     const form = document.getElementById(formId);
-    if (!form) return true;
-    
-    let isValid = true;
-    const inputs = form.querySelectorAll('input[required], select[required]');
-    
-    inputs.forEach(input => {
-        if (!input.value.trim()) {
-            isValid = false;
-            input.style.borderColor = 'var(--danger-color)';
-            
-            // Add error message
-            let errorMsg = input.nextElementSibling;
-            if (!errorMsg || !errorMsg.classList.contains('error-message')) {
-                errorMsg = document.createElement('div');
-                errorMsg.className = 'error-message';
-                errorMsg.style.color = 'var(--danger-color)';
-                errorMsg.style.fontSize = '0.8rem';
-                errorMsg.style.marginTop = '5px';
-                input.parentNode.appendChild(errorMsg);
-            }
-            errorMsg.textContent = 'This field is required';
-        } else {
-            input.style.borderColor = '';
-            const errorMsg = input.nextElementSibling;
-            if (errorMsg && errorMsg.classList.contains('error-message')) {
-                errorMsg.remove();
-            }
-        }
-    });
-    
-    return isValid;
+    return window.validateForm ? window.validateForm(form) : true;
 }
 
-// File Upload Handling
+// File Upload Handling (modular)
 function setupFileUpload() {
     const uploadArea = document.getElementById('uploadArea');
     const fileInput = document.getElementById('fileInput');
-    
     if (uploadArea && fileInput) {
-        // Click on area triggers file input
-        uploadArea.addEventListener('click', () => {
-            fileInput.click();
-        });
-        
-        // Drag and drop
+        uploadArea.addEventListener('click', () => fileInput.click());
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             uploadArea.classList.add('drag-over');
         });
-        
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('drag-over');
-        });
-        
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
         uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadArea.classList.remove('drag-over');
-            
             if (e.dataTransfer.files.length) {
                 fileInput.files = e.dataTransfer.files;
                 updateFileName();
             }
         });
-        
-        // File input change
         fileInput.addEventListener('change', updateFileName);
     }
 }
@@ -110,7 +63,6 @@ function setupFileUpload() {
 function updateFileName() {
     const fileInput = document.getElementById('fileInput');
     const fileNameDisplay = document.getElementById('fileName');
-    
     if (fileInput && fileInput.files.length > 0 && fileNameDisplay) {
         fileNameDisplay.textContent = fileInput.files[0].name;
         fileNameDisplay.style.color = 'var(--primary-color)';
@@ -310,8 +262,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.head.appendChild(style);
 });
 
-// API Base URL
-const API_BASE_URL = 'http://localhost:5000/api';
+// API Base URL (prefer same-origin when served by the backend)
+const API_BASE_URL = '/api';
 
 // Authentication functions
 async function loginUser(phoneNumber, password) {

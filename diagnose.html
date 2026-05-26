@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="frontend/api-client.js"></script>
 </head>
 <body>
     <header class="header">
@@ -902,14 +903,12 @@
             loadingSpinner.style.display = 'block';
             
             try {
-                // Simulate API call to AI service
-                // In a real implementation, you would:
-                // 1. Upload images to your server
-                // 2. Process with AI model (TensorFlow.js, Python backend with ML model)
-                // 3. Return analysis results
-                
-                // Simulate processing time
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                // Backend integration: verify the upload is a plant first.
+                // The backend currently exposes POST `/api/plant/check` and returns `{ success, message }`.
+                const firstFile = selectedFiles[0];
+                if (window.hhApi && firstFile) {
+                    await window.hhApi.plantCheck(firstFile);
+                }
                 
                 // Generate mock analysis based on plant type
                 const analysis = generateMockAnalysis();
@@ -922,7 +921,7 @@
                 
             } catch (error) {
                 console.error('Analysis failed:', error);
-                alert('Analysis failed. Please try again.');
+                alert(error && error.message ? error.message : 'Analysis failed. Please try again.');
             } finally {
                 isAnalyzing = false;
                 diagnoseBtn.disabled = false;
