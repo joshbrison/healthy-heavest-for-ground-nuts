@@ -33,6 +33,10 @@
     <main class="container" style="padding: 40px 20px;">
         <h1 class="section-title" style="text-align: left; margin-bottom: 10px;">AI Plant Disease Diagnosis</h1>
         <p style="color: var(--text-light); margin-bottom: 30px;">Upload plant images for instant AI-powered disease detection and treatment solutions</p>
+        <div id="apiWarning" class="alert alert-warning" style="display:none; margin-bottom: 20px;">
+            <strong>Note:</strong> If you open this page from a static dev server (for example <code>http://127.0.0.1:5500/diagnose.html</code>),
+            the API might be running on <code>http://localhost:5000</code>. This page will try to route API calls to port <code>5000</code> automatically.
+        </div>
         
         <!-- Upload Section -->
         <div class="upload-section">
@@ -918,7 +922,17 @@
                 
             } catch (error) {
                 console.error('Analysis failed:', error);
-                alert(error && error.message ? error.message : 'Analysis failed. Please try again.');
+                const parts = [];
+                if (error && error.message) parts.push(error.message);
+                if (error && error.status) parts.push(`HTTP ${error.status}`);
+                if (error && error.body) {
+                    try {
+                        parts.push(typeof error.body === 'string' ? error.body : JSON.stringify(error.body));
+                    } catch (e) {
+                        parts.push(String(error.body));
+                    }
+                }
+                alert(parts.length ? parts.join('\n') : 'Analysis failed. Please try again.');
             } finally {
                 isAnalyzing = false;
                 diagnoseBtn.disabled = false;
@@ -1289,6 +1303,28 @@
                 closeModal();
             }
         }
+
+        // Initialize history on page load
+        try { loadDiagnosisHistory(); } catch (e) {}
+
+        // Warn if opened as a local file (fetch to /api will fail)
+        (function warnIfWrongOrigin() {
+            const warning = document.getElementById('apiWarning');
+            if (!warning) return;
+            if (!window.location) return;
+            if (window.location.protocol === 'file:') {
+                warning.style.display = 'block';
+                return;
+            }
+            if (
+                window.location.protocol.startsWith('http') &&
+                (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') &&
+                window.location.port &&
+                window.location.port !== '5000'
+            ) {
+                warning.style.display = 'block';
+            }
+        })();
     </script>
     <script src="shared-footer.js"></script>
 </body>

@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const { loadModel, isPlant } = require('../../plantAgent');
 
 const upload = multer({ storage: multer.memoryStorage() });
+const uploadAny = multer({ storage: multer.memoryStorage() });
 
 function getPlantDiagnosisFixtures() {
     return {
@@ -105,11 +106,14 @@ router.post('/check', upload.single('image'), async (req, res) => {
 
 // POST /api/plant/diagnose
 // Accepts up to 5 images under `images[]` and returns an analysis payload consumed by diagnose.html.
-router.post('/diagnose', upload.array('images', 5), async (req, res) => {
+router.post('/diagnose', uploadAny.any(), async (req, res) => {
     try {
-        const files = Array.isArray(req.files) ? req.files : [];
+        const files = Array.isArray(req.files) ? req.files.slice(0, 5) : [];
         if (files.length === 0) {
-            return res.status(400).json({ error: 'No images uploaded.' });
+            return res.status(400).json({
+                error: 'No images uploaded.',
+                hint: 'Send one or more files as multipart/form-data (field name `images` is recommended).',
+            });
         }
 
         // Best-effort validation: if the optional ML dependency is installed, confirm the first image is a plant.
