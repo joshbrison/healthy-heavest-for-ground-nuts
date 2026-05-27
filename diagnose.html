@@ -903,15 +903,12 @@
             loadingSpinner.style.display = 'block';
             
             try {
-                // Backend integration: verify the upload is a plant first.
-                // The backend currently exposes POST `/api/plant/check` and returns `{ success, message }`.
-                const firstFile = selectedFiles[0];
-                if (window.hhApi && firstFile) {
-                    await window.hhApi.plantCheck(firstFile);
+                if (!window.hhApi || !window.hhApi.plantDiagnose) {
+                    throw new Error('AI diagnosis API client is not available.');
                 }
-                
-                // Generate mock analysis based on plant type
-                const analysis = generateMockAnalysis();
+
+                // Real backend diagnosis (replaces mock analysis)
+                const analysis = await window.hhApi.plantDiagnose(selectedFiles);
                 
                 // Display results
                 displayResults(analysis);

@@ -39,6 +39,13 @@
     return request('/plant/check', { method: 'POST', body: formData });
   }
 
+  async function plantDiagnose(files) {
+    const formData = new FormData();
+    const list = Array.isArray(files) ? files : [];
+    list.forEach((file) => formData.append('images', file));
+    return request('/plant/diagnose', { method: 'POST', body: formData });
+  }
+
   async function status() {
     return request('/status');
   }
@@ -46,7 +53,7 @@
   window.hhApi = Object.freeze({
     request,
     plantCheck,
+    plantDiagnose,
     status,
   });
 })();
-
